@@ -1,0 +1,40 @@
+dataset:
+  name: 'cifar10'
+  root: '../../data/cifar10/'
+  ch: 3
+
+train:
+  total_steps: 800000
+  batch_size: 128
+  n_workers: 4
+  lr: 2.0e-4
+  warmup: 5000
+  grad_clip: 1.
+  ema_decay: 0.9999
+  sample_step: 10000
+  save_step: 1000 # Save as 'ckpt_latest.pt'
+  archive_step: 100000 # Save as 'ckpt_{step}.pt'
+
+eval:
+  sample_size: 64
+  batch_size: 64
+
+sde:
+  name: 'VPSDE'
+  beta_min: 0.1
+  beta_max: 20
+  N: 1000
+  
+model:
+  name: 'ddpm'
+  pred_type: 'noise'
+  ch: 128
+  ch_mult: [1, 2, 2, 2]
+  attn: [1,]
+  num_res_blocks: 2
+  dropout: 0.1
+
+device: 'cuda:0'
+parallel: True
+seed: 42
+
