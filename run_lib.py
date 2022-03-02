@@ -132,7 +132,12 @@ def train(config, logdir, resume=True):
                 for i in range(0, config.eval.sample_size, config.eval.batch_size):
                     x_T = torch.randn_like(x_0)
                     with torch.no_grad():
-                        x = sampler(x_T, pbar)
+                        x = sampler(
+                            x_T,
+                            pbar,
+                            corrector_n_steps=1,
+                            corrector_langevin_snr=0.16,
+                        )
                     xs.append((x.detach().cpu() + 1.) / 2)
                     pbar.set_postfix(option=f'({i+1}/{total_steps})')
                 xs = torch.cat(xs, dim=0)
@@ -235,7 +240,12 @@ def eval(config, logdir):
         for _ in pbar:
             x_T = torch.randn_like(x_0)
             with torch.no_grad():
-                x = sampler(x_T, pbar)
+                x = sampler(
+                    x_T,
+                    pbar,
+                    corrector_n_steps=3,
+                    corrector_langevin_snr=0.16,
+                )
             xs.append((x.detach().cpu() + 1.) / 2)
     xs = torch.cat(xs, dim=0)
     now = datetime.now()

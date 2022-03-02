@@ -56,9 +56,8 @@ class AbstractSDE(abc.ABC):
         class RSDE(self.__class__):
             def __init__(self):
                 pass
-                
-            def sde(self, x_t, t):
-                # Get score function values
+
+            def score_fn(self, x_t, t):
                 if model_pred_type == 'noise':
                     x_noise_pred = model(x_t, t)
                     _, x_std = marginal_fn(
@@ -74,6 +73,11 @@ class AbstractSDE(abc.ABC):
                         t
                     )
                     score = (x_mean - x_t) / x_std
+                return score
+                
+            def sde(self, x_t, t):
+                # Get score function values
+                score = self.score_fn(x_t, t)
 
                 # Forward SDE's drift & diffusion
                 drift, diffusion = sde_fn(x_t, t)
@@ -91,6 +95,8 @@ class VPSDE(AbstractSDE):
         self.beta_0 = beta_min
         self.beta_1 = beta_max
         self.N = N
+        self.discrete_betas = torch.linspace(beta_min / N, beta_max / N, N)
+        self.alphas = 1. - self.discrete_betas
         # self.IS_dist, self.norm_const = self.proposal_distribution()
 
     @property
